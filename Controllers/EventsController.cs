@@ -60,6 +60,7 @@ namespace EventCalendarAPI.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponseDto<EventResponseDto>), 201)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 400)]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Create([FromBody] CreateEventRequestDto request)
         {
             var ev = await _eventService.CreateAsync(request, GetCurrentUserId());

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EventCalendarAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class recreatetable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -131,6 +131,41 @@ namespace EventCalendarAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Reminders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReminderDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsSent = table.Column<bool>(type: "bit", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reminders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reminders_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reminders_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tickets",
                 columns: table => new
                 {
@@ -201,11 +236,11 @@ namespace EventCalendarAPI.Migrations
                 columns: new[] { "Id", "ColorCode", "CreatedAt", "Description", "IsActive", "Name", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, "#3498db", new DateTime(2026, 2, 28, 8, 48, 21, 22, DateTimeKind.Utc).AddTicks(4191), null, true, "Personal", null },
-                    { 2, "#e74c3c", new DateTime(2026, 2, 28, 8, 48, 21, 22, DateTimeKind.Utc).AddTicks(4193), null, true, "Work", null },
-                    { 3, "#2ecc71", new DateTime(2026, 2, 28, 8, 48, 21, 22, DateTimeKind.Utc).AddTicks(4195), null, true, "Family", null },
-                    { 4, "#f39c12", new DateTime(2026, 2, 28, 8, 48, 21, 22, DateTimeKind.Utc).AddTicks(4197), null, true, "Social", null },
-                    { 5, "#9b59b6", new DateTime(2026, 2, 28, 8, 48, 21, 22, DateTimeKind.Utc).AddTicks(4198), null, true, "Health", null }
+                    { 1, "#3498db", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Personal", null },
+                    { 2, "#e74c3c", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Work", null },
+                    { 3, "#2ecc71", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Family", null },
+                    { 4, "#f39c12", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Social", null },
+                    { 5, "#9b59b6", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, true, "Health", null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -227,6 +262,16 @@ namespace EventCalendarAPI.Migrations
                 name: "IX_Payments_TicketId",
                 table: "Payments",
                 column: "TicketId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reminders_EventId",
+                table: "Reminders",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reminders_UserId",
+                table: "Reminders",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_EventId",
@@ -262,6 +307,9 @@ namespace EventCalendarAPI.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "Reminders");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

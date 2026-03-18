@@ -19,17 +19,17 @@ namespace EventCalendarAPI.DTOs.Request
 
         public string? Location { get; set; }
 
-        public EventPrivacy Privacy { get; set; } = EventPrivacy.Public;
+        //public EventPrivacy Privacy { get; set; } = EventPrivacy.Public;
 
-        public bool IsAllDay { get; set; } = false;
+        //public bool IsAllDay { get; set; } = false;
 
         public bool ReminderEnabled { get; set; } = false;
 
         public int? ReminderMinutesBefore { get; set; }
 
-        public RecurrencePattern Recurrence { get; set; } = RecurrencePattern.None;
+        //public RecurrencePattern Recurrence { get; set; } = RecurrencePattern.None;
 
-        public string? RecurrenceRule { get; set; }
+        //public string? RecurrenceRule { get; set; }
 
         public int MaxAttendees { get; set; } = 0;
 
@@ -52,17 +52,17 @@ namespace EventCalendarAPI.DTOs.Request
 
         public string? Location { get; set; }
 
-        public EventPrivacy? Privacy { get; set; }
+        //public EventPrivacy? Privacy { get; set; }
 
-        public bool? IsAllDay { get; set; }
+        //public bool? IsAllDay { get; set; }
 
         public bool? ReminderEnabled { get; set; }
 
         public int? ReminderMinutesBefore { get; set; }
 
-        public RecurrencePattern? Recurrence { get; set; }
+       // public RecurrencePattern? Recurrence { get; set; }
 
-        public string? RecurrenceRule { get; set; }
+        //public string? RecurrenceRule { get; set; }
 
         public int? MaxAttendees { get; set; }
 

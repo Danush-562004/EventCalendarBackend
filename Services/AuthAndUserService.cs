@@ -69,15 +69,15 @@ namespace EventCalendarAPI.Services
         private static UserResponseDto MapToUserResponse(User user) => new()
         {
             Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
+            //Username = user.Username,
+            //Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            PhoneNumber = user.PhoneNumber,
-            ProfilePicture = user.ProfilePicture,
+            //PhoneNumber = user.PhoneNumber,
+            //ProfilePicture = user.ProfilePicture,
             Role = user.Role,
-            EmailNotifications = user.EmailNotifications,
-            PushNotifications = user.PushNotifications,
+            //EmailNotifications = user.EmailNotifications,
+            //PushNotifications = user.PushNotifications,
             CreatedAt = user.CreatedAt
         };
     }
@@ -163,15 +163,15 @@ namespace EventCalendarAPI.Services
         private static UserResponseDto MapToResponse(User u) => new()
         {
             Id = u.Id,
-            Username = u.Username,
-            Email = u.Email,
+            //Username = u.Username,
+            //Email = u.Email,
             FirstName = u.FirstName,
             LastName = u.LastName,
-            PhoneNumber = u.PhoneNumber,
-            ProfilePicture = u.ProfilePicture,
+            //PhoneNumber = u.PhoneNumber,
+            //ProfilePicture = u.ProfilePicture,
             Role = u.Role,
-            EmailNotifications = u.EmailNotifications,
-            PushNotifications = u.PushNotifications,
+            //EmailNotifications = u.EmailNotifications,
+            //PushNotifications = u.PushNotifications,
             CreatedAt = u.CreatedAt
         };
     }

@@ -38,16 +38,16 @@ namespace EventCalendarAPI.DTOs.Response
     public class UserResponseDto
     {
         public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
+        //public string Username { get; set; } = string.Empty;
+        //public string Email { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public string FullName => $"{FirstName} {LastName}";
-        public string? PhoneNumber { get; set; }
-        public string? ProfilePicture { get; set; }
+        //public string FullName => $"{FirstName} {LastName}";
+        //public string? PhoneNumber { get; set; }
+        //public string? ProfilePicture { get; set; }
         public string Role { get; set; } = string.Empty;
-        public bool EmailNotifications { get; set; }
-        public bool PushNotifications { get; set; }
+        //public bool EmailNotifications { get; set; }
+        //public bool PushNotifications { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -89,12 +89,12 @@ namespace EventCalendarAPI.DTOs.Response
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
         public string? Location { get; set; }
-        public string Privacy { get; set; } = string.Empty;
-        public bool IsAllDay { get; set; }
+        //public string Privacy { get; set; } = string.Empty;
+        //public bool IsAllDay { get; set; }
         public bool ReminderEnabled { get; set; }
         public int? ReminderMinutesBefore { get; set; }
-        public string Recurrence { get; set; } = string.Empty;
-        public string? RecurrenceRule { get; set; }
+        //public string Recurrence { get; set; } = string.Empty;
+        //public string? RecurrenceRule { get; set; }
         public int MaxAttendees { get; set; }
         public int TicketCount { get; set; }
         public bool IsActive { get; set; }
@@ -111,6 +111,8 @@ namespace EventCalendarAPI.DTOs.Response
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
+        //public int Quantity { get; set; }
+        //public decimal TotalPrice => Quantity * Amount;
         public string Currency { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string Method { get; set; } = string.Empty;

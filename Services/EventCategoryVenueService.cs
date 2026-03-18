@@ -74,12 +74,12 @@ namespace EventCalendarAPI.Services
                 StartDateTime = request.StartDateTime,
                 EndDateTime = request.EndDateTime,
                 Location = request.Location,
-                Privacy = request.Privacy,
-                IsAllDay = request.IsAllDay,
+                //Privacy = request.Privacy,
+                //IsAllDay = request.IsAllDay,
                 ReminderEnabled = request.ReminderEnabled,
                 ReminderMinutesBefore = request.ReminderMinutesBefore,
-                Recurrence = request.Recurrence,
-                RecurrenceRule = request.RecurrenceRule,
+                //Recurrence = request.Recurrence,
+                //RecurrenceRule = request.RecurrenceRule,
                 MaxAttendees = request.MaxAttendees,
                 CategoryId = request.CategoryId,
                 VenueId = request.VenueId,
@@ -105,12 +105,12 @@ namespace EventCalendarAPI.Services
             if (request.StartDateTime.HasValue) ev.StartDateTime = request.StartDateTime.Value;
             if (request.EndDateTime.HasValue) ev.EndDateTime = request.EndDateTime.Value;
             if (request.Location != null) ev.Location = request.Location;
-            if (request.Privacy.HasValue) ev.Privacy = request.Privacy.Value;
-            if (request.IsAllDay.HasValue) ev.IsAllDay = request.IsAllDay.Value;
+            //if (request.Privacy.HasValue) ev.Privacy = request.Privacy.Value;
+            //if (request.IsAllDay.HasValue) ev.IsAllDay = request.IsAllDay.Value;
             if (request.ReminderEnabled.HasValue) ev.ReminderEnabled = request.ReminderEnabled.Value;
             if (request.ReminderMinutesBefore.HasValue) ev.ReminderMinutesBefore = request.ReminderMinutesBefore;
-            if (request.Recurrence.HasValue) ev.Recurrence = request.Recurrence.Value;
-            if (request.RecurrenceRule != null) ev.RecurrenceRule = request.RecurrenceRule;
+            //if (request.Recurrence.HasValue) ev.Recurrence = request.Recurrence.Value;
+            //if (request.RecurrenceRule != null) ev.RecurrenceRule = request.RecurrenceRule;
             if (request.MaxAttendees.HasValue) ev.MaxAttendees = request.MaxAttendees.Value;
             if (request.CategoryId.HasValue) ev.CategoryId = request.CategoryId.Value;
             if (request.VenueId.HasValue) ev.VenueId = request.VenueId;
@@ -145,12 +145,12 @@ namespace EventCalendarAPI.Services
             StartDateTime = e.StartDateTime,
             EndDateTime = e.EndDateTime,
             Location = e.Location,
-            Privacy = e.Privacy.ToString(),
-            IsAllDay = e.IsAllDay,
+            //Privacy = e.Privacy.ToString(),
+            //IsAllDay = e.IsAllDay,
             ReminderEnabled = e.ReminderEnabled,
             ReminderMinutesBefore = e.ReminderMinutesBefore,
-            Recurrence = e.Recurrence.ToString(),
-            RecurrenceRule = e.RecurrenceRule,
+            //Recurrence = e.Recurrence.ToString(),
+            //RecurrenceRule = e.RecurrenceRule,
             MaxAttendees = e.MaxAttendees,
             TicketCount = e.Tickets?.Count ?? 0,
             IsActive = e.IsActive,

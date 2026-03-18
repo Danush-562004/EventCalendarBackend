@@ -258,6 +258,8 @@ namespace EventCalendarAPI.Services
         {
             Id = p.Id,
             Amount = p.Amount,
+            //Quantity=p.Ticket?.Quantity?? 0,
+            //TotalPrice =p.Amount * (p.Ticket?.Quantity ?? 0),
             Currency = p.Currency,
             Status = p.Status.ToString(),
             Method = p.Method.ToString(),

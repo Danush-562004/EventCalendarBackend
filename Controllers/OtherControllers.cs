@@ -34,7 +34,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequestDto request)
         {
             var category = await _categoryService.CreateAsync(request);
@@ -87,6 +87,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateVenueRequestDto request)
         {
             var venue = await _venueService.CreateAsync(request);

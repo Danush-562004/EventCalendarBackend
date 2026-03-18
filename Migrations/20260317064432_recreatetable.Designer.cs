@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventCalendarAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260316172347_AddReminderFeature")]
-    partial class AddReminderFeature
+    [Migration("20260317064432_recreatetable")]
+    partial class recreatetable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

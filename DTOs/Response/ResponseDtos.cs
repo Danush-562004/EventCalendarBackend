@@ -38,17 +38,32 @@ namespace EventCalendarAPI.DTOs.Response
     public class UserResponseDto
     {
         public int Id { get; set; }
-        //public string Username { get; set; } = string.Empty;
-        //public string Email { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        //public string FullName => $"{FirstName} {LastName}";
-        //public string? PhoneNumber { get; set; }
-        //public string? ProfilePicture { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
+        public string? PhoneNumber { get; set; }
+        public string? ProfilePicture { get; set; }
         public string Role { get; set; } = string.Empty;
-        //public bool EmailNotifications { get; set; }
-        //public bool PushNotifications { get; set; }
+        public bool EmailNotifications { get; set; }
+        public bool PushNotifications { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    // ─── AuditLog ────────────────────────────────────────────────
+    public class AuditLogResponseDto
+    {
+        public int Id { get; set; }
+        public int? UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
+        public string EntityType { get; set; } = string.Empty;
+        public string? EntityId { get; set; }
+        public string? OldValues { get; set; }
+        public string? NewValues { get; set; }
+        public string? IpAddress { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 
     // ─── Category ────────────────────────────────────────────────
@@ -86,6 +101,11 @@ namespace EventCalendarAPI.DTOs.Response
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int AvailableSeats { get; set; }
+
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
         public string? Location { get; set; }

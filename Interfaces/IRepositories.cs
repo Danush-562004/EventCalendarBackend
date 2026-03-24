@@ -30,8 +30,8 @@ namespace EventCalendarAPI.Interfaces
         Task<Event?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<Event>> GetAllWithDetailsAsync();
         Task<IEnumerable<Event>> GetByUserIdAsync(int userId);
-        Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, int page, int pageSize);
-        Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy);
+        Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize);
+        Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice);
         Task<PagedResult<Event>> GetAllPagedAsync(int page, int pageSize);
     }
 
@@ -46,7 +46,7 @@ namespace EventCalendarAPI.Interfaces
     public interface IVenueRepository : IRepository<Venue>
     {
         Task<IEnumerable<Venue>> GetActiveVenuesAsync();
-        Task<PagedResult<Venue>> GetPagedAsync(int page, int pageSize);
+        Task<PagedResult<Venue>> GetPagedAsync(int page, int pageSize, string? city = null, string? country = null);
     }
 
     // ─── Ticket ──────────────────────────────────────────────────
@@ -73,6 +73,25 @@ namespace EventCalendarAPI.Interfaces
         Task<IEnumerable<Reminder>> GetByEventIdAsync(int eventId);
         Task<IEnumerable<Reminder>> GetPendingRemindersAsync(DateTime upTo);
         Task<PagedResult<Reminder>> GetPagedByUserAsync(int userId, int page, int pageSize);
+    }
+
+    // ─── AuditLog ────────────────────────────────────────────────
+    public interface IAuditLogRepository
+    {
+        Task AddAsync(AuditLog log);
+        Task<PagedResult<AuditLog>> GetPagedAsync(int page, int pageSize, string? action, string? entityType, DateTime? from, DateTime? to);
+    }
+
+    // ─── Ticket (filtered) ───────────────────────────────────────
+    public interface ITicketFilterRepository
+    {
+        Task<PagedResult<Ticket>> GetPagedFilteredAsync(int page, int pageSize, string? status, int? eventId);
+    }
+
+    // ─── Payment (filtered) ──────────────────────────────────────
+    public interface IPaymentFilterRepository
+    {
+        Task<PagedResult<Payment>> GetPagedFilteredAsync(int page, int pageSize, string? status, string? method);
     }
 
     // ─── Paged Result ────────────────────────────────────────────

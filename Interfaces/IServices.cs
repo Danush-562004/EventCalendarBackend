@@ -42,7 +42,7 @@ namespace EventCalendarAPI.Interfaces
     public interface IVenueService
     {
         Task<VenueResponseDto> GetByIdAsync(int id);
-        Task<PagedResponseDto<VenueResponseDto>> GetAllAsync(int page, int pageSize);
+        Task<PagedResponseDto<VenueResponseDto>> GetAllAsync(int page, int pageSize, string? city = null, string? country = null);
         Task<VenueResponseDto> CreateAsync(CreateVenueRequestDto request);
         Task<VenueResponseDto> UpdateAsync(int id, UpdateVenueRequestDto request);
         Task DeleteAsync(int id);
@@ -89,5 +89,13 @@ namespace EventCalendarAPI.Interfaces
     {
         string GenerateToken(int userId, string username, string role);
         DateTime GetTokenExpiry();
+    }
+
+    public interface IAuditLogService
+    {
+        Task LogAsync(string action, string entityType, string? entityId = null,
+            int? userId = null, string? userName = null,
+            string? oldValues = null, string? newValues = null, string? ipAddress = null);
+        Task<PagedResponseDto<AuditLogResponseDto>> GetAllAsync(int page, int pageSize, string? action, string? entityType, DateTime? from, DateTime? to);
     }
 }

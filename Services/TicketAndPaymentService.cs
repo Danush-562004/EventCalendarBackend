@@ -11,11 +11,13 @@ namespace EventCalendarAPI.Services
     {
         private readonly ITicketRepository _ticketRepository;
         private readonly IEventRepository _eventRepository;
+        private readonly IAuditLogService _auditLog;
 
-        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository)
+        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IAuditLogService auditLog)
         {
             _ticketRepository = ticketRepository;
             _eventRepository = eventRepository;
+            _auditLog = auditLog;
         }
 
         public async Task<TicketResponseDto> GetByIdAsync(int id, int requestingUserId, string userRole)
@@ -67,8 +69,12 @@ namespace EventCalendarAPI.Services
             if (!ev.IsActive)
                 throw new ValidationException("Cannot book tickets for an inactive event.");
 
-            if (ev.MaxAttendees > 0 && (ev.Tickets?.Count ?? 0) >= ev.MaxAttendees)
-                throw new ValidationException("This event has reached its maximum attendee capacity.");
+            // ✅ Replace old capacity check with this
+            int bookedCount = ev.Tickets?.Where(t => t.Status != TicketStatus.Cancelled)
+                                         .Sum(t => t.Quantity) ?? 0;
+            int available = ev.MaxAttendees - bookedCount;
+            if (ev.MaxAttendees > 0 && available < request.Quantity)
+                throw new ValidationException($"Only {available} seats available.");
 
             var ticket = new Ticket
             {
@@ -76,7 +82,7 @@ namespace EventCalendarAPI.Services
                 EventId = request.EventId,
                 UserId = userId,
                 Type = request.Type,
-                Price = GetPriceByType(request.Type),
+                Price = request.Type == TicketType.Free ? 0 : ev.Price,  // ✅ use event price
                 Quantity = request.Quantity,
                 SeatNumber = request.SeatNumber,
                 Status = TicketStatus.Reserved
@@ -84,6 +90,8 @@ namespace EventCalendarAPI.Services
 
             await _ticketRepository.AddAsync(ticket);
             var created = await _ticketRepository.GetByIdWithDetailsAsync(ticket.Id)!;
+            await _auditLog.LogAsync("Create", "Ticket", ticket.Id.ToString(), userId, null,
+                newValues: $"{{\"eventId\":{request.EventId},\"quantity\":{request.Quantity}}}");
             return MapToResponse(created!);
         }
 
@@ -129,6 +137,7 @@ namespace EventCalendarAPI.Services
             ticket.Status = TicketStatus.Cancelled;
             ticket.UpdatedAt = DateTime.UtcNow;
             await _ticketRepository.UpdateAsync(ticket);
+            await _auditLog.LogAsync("Cancel", "Ticket", id.ToString(), requestingUserId);
         }
 
         private static string GenerateTicketNumber() =>
@@ -171,11 +180,13 @@ namespace EventCalendarAPI.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly ITicketRepository _ticketRepository;
+        private readonly IAuditLogService _auditLog;
 
-        public PaymentService(IPaymentRepository paymentRepository, ITicketRepository ticketRepository)
+        public PaymentService(IPaymentRepository paymentRepository, ITicketRepository ticketRepository, IAuditLogService auditLog)
         {
             _paymentRepository = paymentRepository;
             _ticketRepository = ticketRepository;
+            _auditLog = auditLog;
         }
 
         public async Task<PaymentResponseDto> GetByIdAsync(int id)
@@ -219,7 +230,7 @@ namespace EventCalendarAPI.Services
                 TicketId = request.TicketId,
                 Amount = request.Amount,
                 Currency = request.Currency,
-                Method = request.Method,
+                Method = Enum.Parse<PaymentMethod>(request.Method),
                 TransactionId = request.TransactionId,
                 Notes = request.Notes,
                 Status = PaymentStatus.Pending
@@ -230,7 +241,8 @@ namespace EventCalendarAPI.Services
             ticket.Status = TicketStatus.Confirmed;
             ticket.UpdatedAt = DateTime.UtcNow;
             await _ticketRepository.UpdateAsync(ticket);
-
+            await _auditLog.LogAsync("Create", "Payment", payment.Id.ToString(), null, null,
+                newValues: $"{{\"ticketId\":{request.TicketId},\"amount\":{request.Amount},\"method\":\"{request.Method}\"}}");
             return MapToResponse(payment);
         }
 

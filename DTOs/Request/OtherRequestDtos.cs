@@ -124,7 +124,7 @@ namespace EventCalendarAPI.DTOs.Request
         public string Currency { get; set; } = "USD";
 
         [Required]
-        public PaymentMethod Method { get; set; }
+        public String Method { get; set; }
 
         public string? TransactionId { get; set; }
 

@@ -43,7 +43,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryRequestDto request)
         {
             var category = await _categoryService.UpdateAsync(id, request);
@@ -51,7 +51,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _categoryService.DeleteAsync(id);
@@ -72,9 +72,10 @@ namespace EventCalendarAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20,
+            [FromQuery] string? city = null, [FromQuery] string? country = null)
         {
-            var venues = await _venueService.GetAllAsync(page, pageSize);
+            var venues = await _venueService.GetAllAsync(page, pageSize, city, country);
             return Ok(ApiResponseDto<PagedResponseDto<VenueResponseDto>>.Ok(venues));
         }
 
@@ -96,6 +97,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateVenueRequestDto request)
         {
             var venue = await _venueService.UpdateAsync(id, request);
@@ -103,6 +105,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _venueService.DeleteAsync(id);
@@ -151,6 +154,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Create([FromBody] CreateTicketRequestDto request)
         {
             var ticket = await _ticketService.CreateAsync(request, GetCurrentUserId());
@@ -207,6 +211,7 @@ namespace EventCalendarAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Create([FromBody] CreatePaymentRequestDto request)
         {
             var payment = await _paymentService.CreateAsync(request);
@@ -228,6 +233,31 @@ namespace EventCalendarAPI.Controllers
         {
             await _paymentService.DeleteAsync(id);
             return Ok(ApiResponseDto<object>.Ok(null!, "Payment deleted successfully."));
+        }
+    }
+
+    // ─── Audit Logs Controller ───────────────────────────────────
+    [Authorize(Roles = "Admin")]
+    public class AuditLogsController : BaseController
+    {
+        private readonly IAuditLogService _auditLogService;
+
+        public AuditLogsController(IAuditLogService auditLogService)
+        {
+            _auditLogService = auditLogService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? action = null,
+            [FromQuery] string? entityType = null,
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null)
+        {
+            var result = await _auditLogService.GetAllAsync(page, pageSize, action, entityType, from, to);
+            return Ok(ApiResponseDto<PagedResponseDto<AuditLogResponseDto>>.Ok(result));
         }
     }
 }

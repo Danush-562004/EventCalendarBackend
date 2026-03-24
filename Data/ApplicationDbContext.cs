@@ -14,6 +14,7 @@ namespace EventCalendarAPI.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -121,6 +122,16 @@ namespace EventCalendarAPI.Data
                     .WithMany(u => u.Reminders)
                     .HasForeignKey(r => r.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // AuditLog
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+                entity.Property(a => a.Action).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.EntityType).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.UserName).HasMaxLength(200);
+                entity.Property(a => a.IpAddress).HasMaxLength(50);
             });
 
             // Seed default categories

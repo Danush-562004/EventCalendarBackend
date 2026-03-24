@@ -23,8 +23,10 @@ builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IReminderRepository, ReminderRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 // ─── Services ─────────────────────────────────────────────────
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();

@@ -18,6 +18,7 @@ namespace EventCalendarAPI.Controllers
 
         /// <summary>Get all reminders for the current user with pagination.</summary>
         [HttpGet]
+        [HttpGet("my")]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<ReminderResponseDto>>), 200)]
         public async Task<IActionResult> GetMyReminders([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {

@@ -70,6 +70,7 @@ namespace EventCalendarAPI.Controllers
 
         /// <summary>Update an existing event.</summary>
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<EventResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 404)]
@@ -81,6 +82,7 @@ namespace EventCalendarAPI.Controllers
 
         /// <summary>Delete (soft-delete) an event.</summary>
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 404)]

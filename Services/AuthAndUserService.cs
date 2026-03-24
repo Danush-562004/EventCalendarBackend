@@ -11,12 +11,15 @@ namespace EventCalendarAPI.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordService _passwordService;
         private readonly ITokenService _tokenService;
+        private readonly IAuditLogService _auditLog;
 
-        public AuthService(IUserRepository userRepository, IPasswordService passwordService, ITokenService tokenService)
+        public AuthService(IUserRepository userRepository, IPasswordService passwordService,
+            ITokenService tokenService, IAuditLogService auditLog)
         {
             _userRepository = userRepository;
             _passwordService = passwordService;
             _tokenService = tokenService;
+            _auditLog = auditLog;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
@@ -38,10 +41,12 @@ namespace EventCalendarAPI.Services
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 PhoneNumber = request.PhoneNumber,
-                Role = "User" // Default role is always User
+                Role = "User"
             };
 
             var created = await _userRepository.AddAsync(user);
+            await _auditLog.LogAsync("Register", "User", created.Id.ToString(),
+                created.Id, created.Username, newValues: $"{{\"username\":\"{created.Username}\",\"email\":\"{created.Email}\"}}");
             return BuildAuthResponse(created);
         }
 
@@ -56,6 +61,7 @@ namespace EventCalendarAPI.Services
             if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
                 throw new UnauthorizedException("Invalid credentials.");
 
+            await _auditLog.LogAsync("Login", "User", user.Id.ToString(), user.Id, user.Username);
             return BuildAuthResponse(user);
         }
 
@@ -69,15 +75,15 @@ namespace EventCalendarAPI.Services
         private static UserResponseDto MapToUserResponse(User user) => new()
         {
             Id = user.Id,
-            //Username = user.Username,
-            //Email = user.Email,
+            Username = user.Username,
+            Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            //PhoneNumber = user.PhoneNumber,
-            //ProfilePicture = user.ProfilePicture,
+            PhoneNumber = user.PhoneNumber,
+            ProfilePicture = user.ProfilePicture,
             Role = user.Role,
-            //EmailNotifications = user.EmailNotifications,
-            //PushNotifications = user.PushNotifications,
+            EmailNotifications = user.EmailNotifications,
+            PushNotifications = user.PushNotifications,
             CreatedAt = user.CreatedAt
         };
     }
@@ -86,11 +92,13 @@ namespace EventCalendarAPI.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordService _passwordService;
+        private readonly IAuditLogService _auditLog;
 
-        public UserService(IUserRepository userRepository, IPasswordService passwordService)
+        public UserService(IUserRepository userRepository, IPasswordService passwordService, IAuditLogService auditLog)
         {
             _userRepository = userRepository;
             _passwordService = passwordService;
+            _auditLog = auditLog;
         }
 
         public async Task<UserResponseDto> GetByIdAsync(int id)
@@ -120,6 +128,7 @@ namespace EventCalendarAPI.Services
             if (id != requestingUserId)
                 throw new UnauthorizedException("You can only update your own profile.");
 
+            var old = $"{{\"firstName\":\"{user.FirstName}\",\"lastName\":\"{user.LastName}\"}}";
             if (request.FirstName != null) user.FirstName = request.FirstName;
             if (request.LastName != null) user.LastName = request.LastName;
             if (request.PhoneNumber != null) user.PhoneNumber = request.PhoneNumber;
@@ -129,6 +138,8 @@ namespace EventCalendarAPI.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            await _auditLog.LogAsync("Update", "User", id.ToString(), requestingUserId, user.Username, old,
+                $"{{\"firstName\":\"{user.FirstName}\",\"lastName\":\"{user.LastName}\"}}");
             return MapToResponse(user);
         }
 
@@ -143,6 +154,7 @@ namespace EventCalendarAPI.Services
             user.IsActive = false;
             user.UpdatedAt = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
+            await _auditLog.LogAsync("Delete", "User", id.ToString(), requestingUserId, user.Username);
         }
 
         public async Task ChangePasswordAsync(int userId, ChangePasswordRequestDto request)
@@ -158,20 +170,21 @@ namespace EventCalendarAPI.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            await _auditLog.LogAsync("ChangePassword", "User", userId.ToString(), userId, user.Username);
         }
 
         private static UserResponseDto MapToResponse(User u) => new()
         {
             Id = u.Id,
-            //Username = u.Username,
-            //Email = u.Email,
+            Username = u.Username,
+            Email = u.Email,
             FirstName = u.FirstName,
             LastName = u.LastName,
-            //PhoneNumber = u.PhoneNumber,
-            //ProfilePicture = u.ProfilePicture,
+            PhoneNumber = u.PhoneNumber,
+            ProfilePicture = u.ProfilePicture,
             Role = u.Role,
-            //EmailNotifications = u.EmailNotifications,
-            //PushNotifications = u.PushNotifications,
+            EmailNotifications = u.EmailNotifications,
+            PushNotifications = u.PushNotifications,
             CreatedAt = u.CreatedAt
         };
     }

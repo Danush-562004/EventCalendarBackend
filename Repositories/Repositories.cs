@@ -83,19 +83,19 @@ namespace EventCalendarAPI.Repositories
                 .OrderBy(e => e.StartDateTime)
                 .ToListAsync();
 
-        public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, int page, int pageSize)
+        public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize)
         {
-            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy);
+            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy, minPrice, maxPrice);
             return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy)
+        public async Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice)
         {
-            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy);
+            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy, minPrice, maxPrice);
             return await query.CountAsync();
         }
 
-        private IQueryable<Event> BuildSearchQuery(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy)
+        private IQueryable<Event> BuildSearchQuery(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice)
         {
             var query = _dbSet
                 .Include(e => e.User)
@@ -122,6 +122,12 @@ namespace EventCalendarAPI.Repositories
 
             if (privacy.HasValue)
                 query = query.Where(e => e.Privacy == privacy.Value);
+
+            if (minPrice.HasValue)
+                query = query.Where(e => e.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(e => e.Price <= maxPrice.Value);
 
             return query.OrderBy(e => e.StartDateTime);
         }
@@ -152,9 +158,14 @@ namespace EventCalendarAPI.Repositories
         public async Task<IEnumerable<Venue>> GetActiveVenuesAsync() =>
             await _dbSet.Where(v => v.IsActive).OrderBy(v => v.Name).ToListAsync();
 
-        public async Task<PagedResult<Venue>> GetPagedAsync(int page, int pageSize)
+        public async Task<PagedResult<Venue>> GetPagedAsync(int page, int pageSize, string? city = null, string? country = null)
         {
-            var query = _dbSet.Where(v => v.IsActive).OrderBy(v => v.Name);
+            var query = _dbSet.Where(v => v.IsActive).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(v => v.City.ToLower().Contains(city.ToLower()));
+            if (!string.IsNullOrWhiteSpace(country))
+                query = query.Where(v => v.Country.ToLower().Contains(country.ToLower()));
+            query = query.OrderBy(v => v.Name);
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedResult<Venue> { Items = items, TotalCount = total };
@@ -259,6 +270,36 @@ namespace EventCalendarAPI.Repositories
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedResult<Reminder> { Items = items, TotalCount = total };
+        }
+    }
+
+    // ─── AuditLog Repository ─────────────────────────────────────
+    public class AuditLogRepository : IAuditLogRepository
+    {
+        private readonly ApplicationDbContext _context;
+        public AuditLogRepository(ApplicationDbContext context) { _context = context; }
+
+        public async Task AddAsync(AuditLog log)
+        {
+            _context.AuditLogs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<PagedResult<AuditLog>> GetPagedAsync(int page, int pageSize, string? action, string? entityType, DateTime? from, DateTime? to)
+        {
+            var query = _context.AuditLogs.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(action))
+                query = query.Where(a => a.Action.ToLower() == action.ToLower());
+            if (!string.IsNullOrWhiteSpace(entityType))
+                query = query.Where(a => a.EntityType.ToLower() == entityType.ToLower());
+            if (from.HasValue)
+                query = query.Where(a => a.Timestamp >= from.Value);
+            if (to.HasValue)
+                query = query.Where(a => a.Timestamp <= to.Value);
+            query = query.OrderByDescending(a => a.Timestamp);
+            var total = await query.CountAsync();
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PagedResult<AuditLog> { Items = items, TotalCount = total };
         }
     }
 }

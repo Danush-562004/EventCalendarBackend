@@ -31,6 +31,8 @@ namespace EventCalendarAPI.Helpers
         private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
+            Console.WriteLine("EXCEPTION: " + exception.Message);
+            Console.WriteLine("STACK: " + exception.StackTrace);
 
             var (statusCode, message, errors) = exception switch
             {

@@ -9,6 +9,9 @@ namespace EventCalendarAPI.DTOs.Request
         [MaxLength(300)]
         public string Title { get; set; } = string.Empty;
 
+        [Required]
+        public decimal Price { get; set; } = 0;
+
         public string? Description { get; set; }
 
         [Required]
@@ -43,6 +46,7 @@ namespace EventCalendarAPI.DTOs.Request
     {
         [MaxLength(300)]
         public string? Title { get; set; }
+        public decimal? Price { get; set; }
 
         public string? Description { get; set; }
 
@@ -78,6 +82,8 @@ namespace EventCalendarAPI.DTOs.Request
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public EventPrivacy? Privacy { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 20;
     }

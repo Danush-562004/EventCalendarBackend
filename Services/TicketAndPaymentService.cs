@@ -160,6 +160,7 @@ namespace EventCalendarAPI.Services
             CreatedAt = t.CreatedAt,
             EventId = t.EventId,
             EventTitle = t.Event?.Title ?? string.Empty,
+            EventEndDateTime = t.Event?.EndDateTime ?? DateTime.MinValue,
             UserId = t.UserId,
             UserFullName = t.User != null ? $"{t.User.FirstName} {t.User.LastName}" : string.Empty,
             Payments = t.Payments?.Select(p => new PaymentResponseDto
@@ -233,7 +234,7 @@ namespace EventCalendarAPI.Services
                 TicketId = request.TicketId,
                 Amount = request.Amount,
                 Currency = request.Currency,
-                Method = Enum.Parse<PaymentMethod>(request.Method),
+                Method = Enum.Parse<PaymentMethod>(request.Method, ignoreCase: true),
                 TransactionId = request.TransactionId,
                 Notes = request.Notes,
                 Status = PaymentStatus.Completed,

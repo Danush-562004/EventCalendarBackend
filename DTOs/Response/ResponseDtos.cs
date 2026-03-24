@@ -158,6 +158,7 @@ namespace EventCalendarAPI.DTOs.Response
         public DateTime CreatedAt { get; set; }
         public int EventId { get; set; }
         public string EventTitle { get; set; } = string.Empty;
+        public DateTime EventEndDateTime { get; set; }
         public int UserId { get; set; }
         public string UserFullName { get; set; } = string.Empty;
         public List<PaymentResponseDto> Payments { get; set; } = new();

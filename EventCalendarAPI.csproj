@@ -5,7 +5,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>EventCalendarAPI</RootNamespace>
+    <!-- Prevents the apphost.exe lock issue on Windows during rebuild -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
+
+  <!-- Kill any running instance before build to release file locks -->
+  <Target Name="KillBeforeBuild" BeforeTargets="Build">
+    <Exec Command="taskkill /IM EventCalendarAPI.exe /F 2&gt;nul || exit 0"
+          ContinueOnError="true"
+          IgnoreExitCode="true" />
+  </Target>
 
   <ItemGroup>
     <Compile Remove="EventCalendarAPI.Tests/**" />

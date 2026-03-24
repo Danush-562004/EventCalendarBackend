@@ -118,13 +118,13 @@ namespace EventCalendarAPI.DTOs.Request
         public int TicketId { get; set; }
 
         [Required]
-        [Range(0.01, double.MaxValue)]
+        [Range(0, double.MaxValue)]
         public decimal Amount { get; set; }         
 
         public string Currency { get; set; } = "USD";
 
         [Required]
-        public String Method { get; set; }
+        public string Method { get; set; } = string.Empty;
 
         public string? TransactionId { get; set; }
 

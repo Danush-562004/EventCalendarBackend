@@ -69,6 +69,9 @@ namespace EventCalendarAPI.Services
             if (!ev.IsActive)
                 throw new ValidationException("Cannot book tickets for an inactive event.");
 
+            if (ev.EndDateTime <= DateTime.UtcNow)
+                throw new ValidationException("Cannot book tickets for a past event.");
+
             // ✅ Replace old capacity check with this
             int bookedCount = ev.Tickets?.Where(t => t.Status != TicketStatus.Cancelled)
                                          .Sum(t => t.Quantity) ?? 0;
@@ -233,7 +236,8 @@ namespace EventCalendarAPI.Services
                 Method = Enum.Parse<PaymentMethod>(request.Method),
                 TransactionId = request.TransactionId,
                 Notes = request.Notes,
-                Status = PaymentStatus.Pending
+                Status = PaymentStatus.Completed,
+                PaymentDate = DateTime.UtcNow
             };
 
             await _paymentRepository.AddAsync(payment);

@@ -38,6 +38,9 @@ builder.Services.AddScoped<IReminderService, ReminderService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+// ─── Background Services ──────────────────────────────────────
+builder.Services.AddHostedService<ReminderCleanupService>();
+
 // ─── JWT Authentication ───────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT Key is not configured.");

@@ -27,9 +27,19 @@ namespace EventCalendarAPI.Repositories
         public async Task<bool> EmailExistsAsync(string email) =>
             await _dbSet.AnyAsync(u => u.Email.ToLower() == email.ToLower());
 
-        public async Task<PagedResult<User>> GetPagedAsync(int page, int pageSize)
+        public async Task<PagedResult<User>> GetPagedAsync(int page, int pageSize, string? search = null)
         {
-            var query = _dbSet.OrderBy(u => u.Username);
+            var query = _dbSet.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.ToLower();
+                query = query.Where(u =>
+                    u.Username.ToLower().Contains(s) ||
+                    u.FirstName.ToLower().Contains(s) ||
+                    u.LastName.ToLower().Contains(s) ||
+                    u.Email.ToLower().Contains(s));
+            }
+            query = query.OrderBy(u => u.Username);
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedResult<User> { Items = items, TotalCount = total };
@@ -67,7 +77,7 @@ namespace EventCalendarAPI.Repositories
                 .Include(e => e.Venue)
                 .Include(e => e.Tickets)
                 .Where(e => e.IsActive)
-                .OrderBy(e => e.StartDateTime);
+                .OrderByDescending(e => e.StartDateTime);
 
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
@@ -118,7 +128,7 @@ namespace EventCalendarAPI.Repositories
                 query = query.Where(e => e.StartDateTime >= startDate.Value);
 
             if (endDate.HasValue)
-                query = query.Where(e => e.EndDateTime <= endDate.Value);
+                query = query.Where(e => e.StartDateTime < endDate.Value);
 
             if (privacy.HasValue)
                 query = query.Where(e => e.Privacy == privacy.Value);
@@ -129,7 +139,7 @@ namespace EventCalendarAPI.Repositories
             if (maxPrice.HasValue)
                 query = query.Where(e => e.Price <= maxPrice.Value);
 
-            return query.OrderBy(e => e.StartDateTime);
+            return query.OrderByDescending(e => e.StartDateTime);
         }
     }
 
@@ -203,13 +213,16 @@ namespace EventCalendarAPI.Repositories
         public async Task<Ticket?> GetByTicketNumberAsync(string ticketNumber) =>
             await _dbSet.FirstOrDefaultAsync(t => t.TicketNumber == ticketNumber);
 
-        public async Task<PagedResult<Ticket>> GetPagedAsync(int page, int pageSize)
+        public async Task<PagedResult<Ticket>> GetPagedAsync(int page, int pageSize, string? status = null)
         {
             var query = _dbSet
                 .Include(t => t.Event)
                 .Include(t => t.User)
                 .Include(t => t.Payments)
-                .OrderByDescending(t => t.CreatedAt);
+                .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<TicketStatus>(status, true, out var ts))
+                query = query.Where(t => t.Status == ts);
+            query = query.OrderByDescending(t => t.CreatedAt);
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedResult<Ticket> { Items = items, TotalCount = total };
@@ -227,9 +240,12 @@ namespace EventCalendarAPI.Repositories
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-        public async Task<PagedResult<Payment>> GetPagedAsync(int page, int pageSize)
+        public async Task<PagedResult<Payment>> GetPagedAsync(int page, int pageSize, string? status = null)
         {
-            var query = _dbSet.OrderByDescending(p => p.CreatedAt);
+            var query = _dbSet.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<PaymentStatus>(status, true, out var ps))
+                query = query.Where(p => p.Status == ps);
+            query = query.OrderByDescending(p => p.CreatedAt);
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedResult<Payment> { Items = items, TotalCount = total };

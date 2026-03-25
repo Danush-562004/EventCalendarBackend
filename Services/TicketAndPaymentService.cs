@@ -31,9 +31,9 @@ namespace EventCalendarAPI.Services
             return MapToResponse(ticket);
         }
 
-        public async Task<PagedResponseDto<TicketResponseDto>> GetAllAsync(int page, int pageSize)
+        public async Task<PagedResponseDto<TicketResponseDto>> GetAllAsync(int page, int pageSize, string? status = null)
         {
-            var result = await _ticketRepository.GetPagedAsync(page, pageSize);
+            var result = await _ticketRepository.GetPagedAsync(page, pageSize, status);
             return new PagedResponseDto<TicketResponseDto>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),
@@ -72,7 +72,13 @@ namespace EventCalendarAPI.Services
             if (ev.EndDateTime <= DateTime.UtcNow)
                 throw new ValidationException("Cannot book tickets for a past event.");
 
-            // ✅ Replace old capacity check with this
+            // Per-user ticket limit: max 10 tickets per user across all events
+            var userTickets = await _ticketRepository.GetByUserIdAsync(userId);
+            int userTotal = userTickets.Where(t => t.Status != TicketStatus.Cancelled).Sum(t => t.Quantity);
+            if (userTotal + request.Quantity > 10)
+                throw new ValidationException($"Ticket limit reached. You can book at most 10 tickets in total. You currently have {userTotal}.");
+
+            // Capacity check
             int bookedCount = ev.Tickets?.Where(t => t.Status != TicketStatus.Cancelled)
                                          .Sum(t => t.Quantity) ?? 0;
             int available = ev.MaxAttendees - bookedCount;
@@ -201,9 +207,9 @@ namespace EventCalendarAPI.Services
             return MapToResponse(payment);
         }
 
-        public async Task<PagedResponseDto<PaymentResponseDto>> GetAllAsync(int page, int pageSize)
+        public async Task<PagedResponseDto<PaymentResponseDto>> GetAllAsync(int page, int pageSize, string? status = null)
         {
-            var result = await _paymentRepository.GetPagedAsync(page, pageSize);
+            var result = await _paymentRepository.GetPagedAsync(page, pageSize, status);
             return new PagedResponseDto<PaymentResponseDto>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),

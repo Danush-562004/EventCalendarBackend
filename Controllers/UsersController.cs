@@ -20,9 +20,9 @@ namespace EventCalendarAPI.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<UserResponseDto>>), 200)]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null)
         {
-            var users = await _userService.GetAllAsync(page, pageSize);
+            var users = await _userService.GetAllAsync(page, pageSize, search);
             return Ok(ApiResponseDto<PagedResponseDto<UserResponseDto>>.Ok(users));
         }
 

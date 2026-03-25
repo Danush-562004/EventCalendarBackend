@@ -108,9 +108,9 @@ namespace EventCalendarAPI.Services
             return MapToResponse(user);
         }
 
-        public async Task<PagedResponseDto<UserResponseDto>> GetAllAsync(int page, int pageSize)
+        public async Task<PagedResponseDto<UserResponseDto>> GetAllAsync(int page, int pageSize, string? search = null)
         {
-            var result = await _userRepository.GetPagedAsync(page, pageSize);
+            var result = await _userRepository.GetPagedAsync(page, pageSize, search);
             return new PagedResponseDto<UserResponseDto>
             {
                 Items = result.Items.Select(MapToResponse).ToList(),

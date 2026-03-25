@@ -13,7 +13,7 @@ namespace EventCalendarAPI.Interfaces
     public interface IUserService
     {
         Task<UserResponseDto> GetByIdAsync(int id);
-        Task<PagedResponseDto<UserResponseDto>> GetAllAsync(int page, int pageSize);
+        Task<PagedResponseDto<UserResponseDto>> GetAllAsync(int page, int pageSize, string? search = null);
         Task<UserResponseDto> UpdateAsync(int id, UpdateUserRequestDto request, int requestingUserId);
         Task DeleteAsync(int id, int requestingUserId);
         Task ChangePasswordAsync(int userId, ChangePasswordRequestDto request);
@@ -51,7 +51,7 @@ namespace EventCalendarAPI.Interfaces
     public interface ITicketService
     {
         Task<TicketResponseDto> GetByIdAsync(int id, int requestingUserId, string userRole);
-        Task<PagedResponseDto<TicketResponseDto>> GetAllAsync(int page, int pageSize);
+        Task<PagedResponseDto<TicketResponseDto>> GetAllAsync(int page, int pageSize, string? status = null);
         Task<IEnumerable<TicketResponseDto>> GetByEventIdAsync(int eventId, int requestingUserId, string userRole);
         Task<IEnumerable<TicketResponseDto>> GetByCurrentUserAsync(int userId);
         Task<TicketResponseDto> CreateAsync(CreateTicketRequestDto request, int userId);
@@ -62,7 +62,7 @@ namespace EventCalendarAPI.Interfaces
     public interface IPaymentService
     {
         Task<PaymentResponseDto> GetByIdAsync(int id);
-        Task<PagedResponseDto<PaymentResponseDto>> GetAllAsync(int page, int pageSize);
+        Task<PagedResponseDto<PaymentResponseDto>> GetAllAsync(int page, int pageSize, string? status = null);
         Task<IEnumerable<PaymentResponseDto>> GetByTicketIdAsync(int ticketId);
         Task<PaymentResponseDto> CreateAsync(CreatePaymentRequestDto request);
         Task<PaymentResponseDto> UpdateAsync(int id, UpdatePaymentRequestDto request);

@@ -126,9 +126,9 @@ namespace EventCalendarAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? status = null)
         {
-            var tickets = await _ticketService.GetAllAsync(page, pageSize);
+            var tickets = await _ticketService.GetAllAsync(page, pageSize, status);
             return Ok(ApiResponseDto<PagedResponseDto<TicketResponseDto>>.Ok(tickets));
         }
 
@@ -190,9 +190,9 @@ namespace EventCalendarAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? status = null)
         {
-            var payments = await _paymentService.GetAllAsync(page, pageSize);
+            var payments = await _paymentService.GetAllAsync(page, pageSize, status);
             return Ok(ApiResponseDto<PagedResponseDto<PaymentResponseDto>>.Ok(payments));
         }
 

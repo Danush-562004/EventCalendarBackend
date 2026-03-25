@@ -21,7 +21,7 @@ namespace EventCalendarAPI.Interfaces
         Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail);
         Task<bool> UsernameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);
-        Task<PagedResult<User>> GetPagedAsync(int page, int pageSize);
+        Task<PagedResult<User>> GetPagedAsync(int page, int pageSize, string? search = null);
     }
 
     // ─── Event ───────────────────────────────────────────────────
@@ -56,14 +56,13 @@ namespace EventCalendarAPI.Interfaces
         Task<IEnumerable<Ticket>> GetByEventIdAsync(int eventId);
         Task<IEnumerable<Ticket>> GetByUserIdAsync(int userId);
         Task<Ticket?> GetByTicketNumberAsync(string ticketNumber);
-        Task<PagedResult<Ticket>> GetPagedAsync(int page, int pageSize);
+        Task<PagedResult<Ticket>> GetPagedAsync(int page, int pageSize, string? status = null);
     }
 
-    // ─── Payment ─────────────────────────────────────────────────
     public interface IPaymentRepository : IRepository<Payment>
     {
         Task<IEnumerable<Payment>> GetByTicketIdAsync(int ticketId);
-        Task<PagedResult<Payment>> GetPagedAsync(int page, int pageSize);
+        Task<PagedResult<Payment>> GetPagedAsync(int page, int pageSize, string? status = null);
     }
 
     // ─── Reminder ────────────────────────────────────────────────

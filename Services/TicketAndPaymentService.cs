@@ -163,6 +163,7 @@ namespace EventCalendarAPI.Services
             EventEndDateTime = t.Event?.EndDateTime ?? DateTime.MinValue,
             UserId = t.UserId,
             UserFullName = t.User != null ? $"{t.User.FirstName} {t.User.LastName}" : string.Empty,
+            UserEmail = t.User?.Email ?? string.Empty,
             Payments = t.Payments?.Select(p => new PaymentResponseDto
             {
                 Id = p.Id,
@@ -223,11 +224,14 @@ namespace EventCalendarAPI.Services
 
         public async Task<PaymentResponseDto> CreateAsync(CreatePaymentRequestDto request)
         {
-            var ticket = await _ticketRepository.GetByIdAsync(request.TicketId)
+            var ticket = await _ticketRepository.GetByIdWithDetailsAsync(request.TicketId)
                 ?? throw new EntityNotFoundException("Ticket", request.TicketId);
 
             if (ticket.Status == TicketStatus.Cancelled)
                 throw new ValidationException("Cannot process payment for a cancelled ticket.");
+
+            if (ticket.Event != null && ticket.Event.EndDateTime <= DateTime.UtcNow)
+                throw new ValidationException("Cannot process payment — the event has already ended.");
 
             var payment = new Payment
             {

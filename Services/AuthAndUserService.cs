@@ -53,13 +53,13 @@ namespace EventCalendarAPI.Services
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
             var user = await _userRepository.GetByUsernameOrEmailAsync(request.UsernameOrEmail)
-                ?? throw new UnauthorizedException("Invalid credentials.");
+                ?? throw new UnauthorizedException("No account found with that username or email.");
 
             if (!user.IsActive)
                 throw new UnauthorizedException("This account has been deactivated.");
 
             if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
-                throw new UnauthorizedException("Invalid credentials.");
+                throw new UnauthorizedException("Wrong password!");
 
             await _auditLog.LogAsync("Login", "User", user.Id.ToString(), user.Id, user.Username);
             return BuildAuthResponse(user);

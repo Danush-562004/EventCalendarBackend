@@ -72,11 +72,13 @@ namespace EventCalendarAPI.Services
             if (ev.EndDateTime <= DateTime.UtcNow)
                 throw new ValidationException("Cannot book tickets for a past event.");
 
-            // Per-user ticket limit: max 10 tickets per user across all events
-            var userTickets = await _ticketRepository.GetByUserIdAsync(userId);
-            int userTotal = userTickets.Where(t => t.Status != TicketStatus.Cancelled).Sum(t => t.Quantity);
-            if (userTotal + request.Quantity > 10)
-                throw new ValidationException($"Ticket limit reached. You can book at most 10 tickets in total. You currently have {userTotal}.");
+            // Per-user ticket limit: max 10 tickets per user per event
+            var userEventTickets = await _ticketRepository.GetByUserIdAsync(userId);
+            int userEventTotal = userEventTickets
+                .Where(t => t.EventId == request.EventId && t.Status != TicketStatus.Cancelled)
+                .Sum(t => t.Quantity);
+            if (userEventTotal + request.Quantity > 10)
+                throw new ValidationException($"Ticket limit reached. You can book at most 10 tickets per event. You already have {userEventTotal} for this event.");
 
             // Capacity check
             int bookedCount = ev.Tickets?.Where(t => t.Status != TicketStatus.Cancelled)

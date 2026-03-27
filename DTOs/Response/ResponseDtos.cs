@@ -156,6 +156,7 @@ namespace EventCalendarAPI.DTOs.Response
         public bool CheckedIn { get; set; }
         public DateTime? CheckInTime { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime PaymentDeadline { get; set; }  // CreatedAt + 5 minutes
         public int EventId { get; set; }
         public string EventTitle { get; set; } = string.Empty;
         public DateTime EventEndDateTime { get; set; }

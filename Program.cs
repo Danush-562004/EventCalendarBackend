@@ -40,6 +40,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 // ─── Background Services ──────────────────────────────────────
 builder.Services.AddHostedService<ReminderCleanupService>();
+builder.Services.AddHostedService<TicketExpiryCleanupService>();
 
 // ─── JWT Authentication ───────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]

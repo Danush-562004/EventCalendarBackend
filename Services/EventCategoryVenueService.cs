@@ -11,12 +11,15 @@ namespace EventCalendarAPI.Services
     {
         private readonly IEventRepository _eventRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IVenueRepository _venueRepository;
         private readonly IAuditLogService _auditLog;
 
-        public EventService(IEventRepository eventRepository, ICategoryRepository categoryRepository, IAuditLogService auditLog)
+        public EventService(IEventRepository eventRepository, ICategoryRepository categoryRepository,
+            IVenueRepository venueRepository, IAuditLogService auditLog)
         {
             _eventRepository = eventRepository;
             _categoryRepository = categoryRepository;
+            _venueRepository = venueRepository;
             _auditLog = auditLog;
         }
 
@@ -70,6 +73,14 @@ namespace EventCalendarAPI.Services
             if (!await _categoryRepository.ExistsAsync(request.CategoryId))
                 throw new EntityNotFoundException("Category", request.CategoryId);
 
+            // Venue capacity check
+            if (request.VenueId.HasValue && request.MaxAttendees > 0)
+            {
+                var venue = await _venueRepository.GetByIdAsync(request.VenueId.Value);
+                if (venue != null && request.MaxAttendees > venue.Capacity)
+                    throw new ValidationException($"Max attendees ({request.MaxAttendees}) cannot exceed venue capacity ({venue.Capacity}).");
+            }
+
             var ev = new Event
             {
                 Title = request.Title,
@@ -117,6 +128,14 @@ namespace EventCalendarAPI.Services
 
             if (ev.StartDateTime >= ev.EndDateTime)
                 throw new ValidationException("Start date/time must be before end date/time.");
+
+            // Venue capacity check
+            if (ev.VenueId.HasValue && ev.MaxAttendees > 0)
+            {
+                var venue = await _venueRepository.GetByIdAsync(ev.VenueId.Value);
+                if (venue != null && ev.MaxAttendees > venue.Capacity)
+                    throw new ValidationException($"Max attendees ({ev.MaxAttendees}) cannot exceed venue capacity ({venue.Capacity}).");
+            }
 
             await _eventRepository.UpdateAsync(ev);
             await _auditLog.LogAsync("Update", "Event", id.ToString(), userId, null, old,

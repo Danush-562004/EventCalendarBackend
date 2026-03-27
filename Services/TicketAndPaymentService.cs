@@ -166,6 +166,7 @@ namespace EventCalendarAPI.Services
             CheckedIn = t.CheckedIn,
             CheckInTime = t.CheckInTime,
             CreatedAt = t.CreatedAt,
+            PaymentDeadline = t.CreatedAt.AddMinutes(5),
             EventId = t.EventId,
             EventTitle = t.Event?.Title ?? string.Empty,
             EventEndDateTime = t.Event?.EndDateTime ?? DateTime.MinValue,
@@ -240,6 +241,10 @@ namespace EventCalendarAPI.Services
 
             if (ticket.Event != null && ticket.Event.EndDateTime <= DateTime.UtcNow)
                 throw new ValidationException("Cannot process payment — the event has already ended.");
+
+            // 5-minute payment window
+            if (DateTime.UtcNow > ticket.CreatedAt.AddMinutes(5))
+                throw new ValidationException("Payment window expired. Please book a new ticket.");
 
             var payment = new Payment
             {

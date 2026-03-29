@@ -93,19 +93,19 @@ namespace EventCalendarAPI.Repositories
                 .OrderBy(e => e.StartDateTime)
                 .ToListAsync();
 
-        public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize)
+        public async Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize, int? venueId = null)
         {
-            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy, minPrice, maxPrice);
+            var query = BuildSearchQuery(keyword, categoryId, venueId, startDate, endDate, privacy, minPrice, maxPrice);
             return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice)
+        public async Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int? venueId = null)
         {
-            var query = BuildSearchQuery(keyword, categoryId, startDate, endDate, privacy, minPrice, maxPrice);
+            var query = BuildSearchQuery(keyword, categoryId, venueId, startDate, endDate, privacy, minPrice, maxPrice);
             return await query.CountAsync();
         }
 
-        private IQueryable<Event> BuildSearchQuery(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice)
+        private IQueryable<Event> BuildSearchQuery(string? keyword, int? categoryId, int? venueId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice)
         {
             var query = _dbSet
                 .Include(e => e.User)
@@ -123,6 +123,9 @@ namespace EventCalendarAPI.Repositories
 
             if (categoryId.HasValue)
                 query = query.Where(e => e.CategoryId == categoryId.Value);
+
+            if (venueId.HasValue)
+                query = query.Where(e => e.VenueId == venueId.Value);
 
             if (startDate.HasValue)
                 query = query.Where(e => e.StartDateTime >= startDate.Value);

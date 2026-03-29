@@ -46,9 +46,9 @@ namespace EventCalendarAPI.Services
         {
             var items = await _eventRepository.SearchAsync(filter.Keyword, filter.CategoryId,
                 filter.StartDate, filter.EndDate, filter.Privacy, filter.MinPrice, filter.MaxPrice,
-                filter.Page, filter.PageSize);
+                filter.Page, filter.PageSize, filter.VenueId);
             var total = await _eventRepository.GetSearchCountAsync(filter.Keyword, filter.CategoryId,
-                filter.StartDate, filter.EndDate, filter.Privacy, filter.MinPrice, filter.MaxPrice);
+                filter.StartDate, filter.EndDate, filter.Privacy, filter.MinPrice, filter.MaxPrice, filter.VenueId);
 
             return new PagedResponseDto<EventResponseDto>
             {

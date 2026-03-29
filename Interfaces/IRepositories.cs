@@ -30,8 +30,8 @@ namespace EventCalendarAPI.Interfaces
         Task<Event?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<Event>> GetAllWithDetailsAsync();
         Task<IEnumerable<Event>> GetByUserIdAsync(int userId);
-        Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize);
-        Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice);
+        Task<IEnumerable<Event>> SearchAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int page, int pageSize, int? venueId = null);
+        Task<int> GetSearchCountAsync(string? keyword, int? categoryId, DateTime? startDate, DateTime? endDate, EventPrivacy? privacy, decimal? minPrice, decimal? maxPrice, int? venueId = null);
         Task<PagedResult<Event>> GetAllPagedAsync(int page, int pageSize);
     }
 

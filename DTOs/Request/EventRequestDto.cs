@@ -79,6 +79,7 @@ namespace EventCalendarAPI.DTOs.Request
     {
         public string? Keyword { get; set; }
         public int? CategoryId { get; set; }
+        public int? VenueId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public EventPrivacy? Privacy { get; set; }

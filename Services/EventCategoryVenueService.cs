@@ -44,10 +44,10 @@ namespace EventCalendarAPI.Services
 
         public async Task<PagedResponseDto<EventResponseDto>> SearchAsync(EventFilterRequestDto filter)
         {
-            var items = await _eventRepository.SearchAsync(filter.Keyword, filter.CategoryId,
+            var items = await _eventRepository.SearchAsync(filter.Keyword, filter.CategoryId, filter.VenueId,
                 filter.StartDate, filter.EndDate, filter.Privacy, filter.MinPrice, filter.MaxPrice,
                 filter.Page, filter.PageSize);
-            var total = await _eventRepository.GetSearchCountAsync(filter.Keyword, filter.CategoryId,
+            var total = await _eventRepository.GetSearchCountAsync(filter.Keyword, filter.CategoryId, filter.VenueId,
                 filter.StartDate, filter.EndDate, filter.Privacy, filter.MinPrice, filter.MaxPrice);
 
             return new PagedResponseDto<EventResponseDto>

@@ -321,4 +321,35 @@ namespace EventCalendarAPI.Repositories
             return new PagedResult<AuditLog> { Items = items, TotalCount = total };
         }
     }
+
+    // ─── Notification Repository ──────────────────────────────────
+    public class NotificationRepository : INotificationRepository
+    {
+        private readonly ApplicationDbContext _context;
+        public NotificationRepository(ApplicationDbContext context) { _context = context; }
+
+        public async Task AddAsync(Notification notification)
+        {
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Notification>> GetByUserIdAsync(int userId) =>
+            await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+        public async Task MarkAllReadAsync(int userId)
+        {
+            var unread = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+            foreach (var n in unread) n.IsRead = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetUnreadCountAsync(int userId) =>
+            await _context.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+    }
 }

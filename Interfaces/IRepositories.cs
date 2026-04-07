@@ -93,6 +93,15 @@ namespace EventCalendarAPI.Interfaces
         Task<PagedResult<Payment>> GetPagedFilteredAsync(int page, int pageSize, string? status, string? method);
     }
 
+    // ─── Notification ────────────────────────────────────────────
+    public interface INotificationRepository
+    {
+        Task AddAsync(Notification notification);
+        Task<IEnumerable<Notification>> GetByUserIdAsync(int userId);
+        Task MarkAllReadAsync(int userId);
+        Task<int> GetUnreadCountAsync(int userId);
+    }
+
     // ─── Paged Result ────────────────────────────────────────────
     public class PagedResult<T>
     {

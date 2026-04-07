@@ -22,5 +22,6 @@ namespace EventCalendarAPI.Models
         public ICollection<Event> Events { get; set; } = new List<Event>();
         public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
         public ICollection<Reminder> Reminders { get; set; } = new List<Reminder>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }

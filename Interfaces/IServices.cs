@@ -98,4 +98,16 @@ namespace EventCalendarAPI.Interfaces
             string? oldValues = null, string? newValues = null, string? ipAddress = null);
         Task<PagedResponseDto<AuditLogResponseDto>> GetAllAsync(int page, int pageSize, string? action, string? entityType, DateTime? from, DateTime? to);
     }
+
+    public interface INotificationService
+    {
+        Task<IEnumerable<NotificationResponseDto>> GetMyNotificationsAsync(int userId);
+        Task MarkAllReadAsync(int userId);
+        Task<int> GetUnreadCountAsync(int userId);
+    }
+
+    public interface IRefundService
+    {
+        Task ProcessRefundsForEventAsync(int eventId, string eventTitle, DateTime eventStartDateTime);
+    }
 }

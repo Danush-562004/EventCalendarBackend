@@ -11,9 +11,7 @@
 
   <!-- Kill any running instance before build to release file locks -->
   <Target Name="KillBeforeBuild" BeforeTargets="Build">
-    <Exec Command="taskkill /IM EventCalendarAPI.exe /F 2&gt;nul || exit 0"
-          ContinueOnError="true"
-          IgnoreExitCode="true" />
+    <Exec Command="taskkill /IM EventCalendarAPI.exe /F 2&gt;nul || exit 0" ContinueOnError="true" IgnoreExitCode="true" />
   </Target>
 
   <ItemGroup>
@@ -31,7 +29,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
-    <PackageReference Include="MailKit" Version="4.3.0" />  
+    <PackageReference Include="MailKit" Version="4.15.1" />  
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://www.schemastore.org/azure-devops-extension-manifest-1.0.json" /></VisualStudio></ProjectExtensions>

@@ -3,7 +3,6 @@ using EventCalendarAPI.DTOs.Response;
 using EventCalendarAPI.Exceptions;
 using EventCalendarAPI.Interfaces;
 using EventCalendarAPI.Models;
-
 namespace EventCalendarAPI.Services
 {
     // ─── Ticket Service ──────────────────────────────────────────
@@ -195,12 +194,15 @@ namespace EventCalendarAPI.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IAuditLogService _auditLog;
+        private readonly IEmailService _emailService;
 
-        public PaymentService(IPaymentRepository paymentRepository, ITicketRepository ticketRepository, IAuditLogService auditLog)
+        public PaymentService(IPaymentRepository paymentRepository, ITicketRepository ticketRepository,
+            IAuditLogService auditLog, IEmailService emailService)
         {
             _paymentRepository = paymentRepository;
             _ticketRepository = ticketRepository;
             _auditLog = auditLog;
+            _emailService = emailService;
         }
 
         public async Task<PaymentResponseDto> GetByIdAsync(int id)
@@ -265,6 +267,18 @@ namespace EventCalendarAPI.Services
             await _ticketRepository.UpdateAsync(ticket);
             await _auditLog.LogAsync("Create", "Payment", payment.Id.ToString(), null, null,
                 newValues: $"{{\"ticketId\":{request.TicketId},\"amount\":{request.Amount},\"method\":\"{request.Method}\"}}");
+
+            // Send ticket confirmation email
+            if (ticket.User != null)
+            {
+                _ = _emailService.SendAsync(
+                    ticket.User.Email,
+                    ticket.User.FirstName,
+                    $"🎫 Booking Confirmed: {ticket.Event?.Title}",
+                    BuildTicketEmail(ticket, payment)
+                );
+            }
+
             return MapToResponse(payment);
         }
 
@@ -288,8 +302,72 @@ namespace EventCalendarAPI.Services
             await _paymentRepository.DeleteAsync(id);
         }
 
-        public static PaymentResponseDto MapToResponse(Payment p) => new()
+        private static string BuildTicketEmail(Ticket ticket, Payment payment)
         {
+            var eventTitle   = ticket.Event?.Title ?? "Event";
+            var eventDate    = ticket.Event?.StartDateTime.ToString("dddd, MMMM d yyyy 'at' h:mm tt") + " UTC" ?? "";
+            var venue        = ticket.Event?.Venue != null
+                ? $"{ticket.Event.Venue.Name}, {ticket.Event.Venue.City}"
+                : ticket.Event?.Location ?? "—";
+            var seatInfo     = string.IsNullOrWhiteSpace(ticket.SeatNumber) ? "—" : ticket.SeatNumber;
+
+            return $"""
+                <!DOCTYPE html>
+                <html>
+                <body style='margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;'>
+                  <table width='100%' cellpadding='0' cellspacing='0'>
+                    <tr><td align='center' style='padding:40px 0;'>
+                      <table width='560' cellpadding='0' cellspacing='0'
+                             style='background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);'>
+                        <tr>
+                          <td style='background:#4f46e5;padding:32px 40px;text-align:center;'>
+                            <h1 style='margin:0;color:#ffffff;font-size:24px;'>🎫 Booking Confirmed!</h1>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style='padding:36px 40px;'>
+                            <p style='font-size:16px;color:#333;'>Hi <strong>{ticket.User!.FirstName}</strong>,</p>
+                            <p style='font-size:15px;color:#555;'>Your payment was successful. Here are your ticket details:</p>
+
+                            <div style='background:#f0f0ff;border-left:4px solid #4f46e5;border-radius:8px;padding:20px 24px;margin:20px 0;'>
+                              <h2 style='margin:0 0 12px;color:#4f46e5;font-size:20px;'>{eventTitle}</h2>
+                              <table cellpadding='0' cellspacing='0' width='100%'>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;width:140px;'>📅 Date</td><td style='font-size:13px;color:#333;font-weight:600;'>{eventDate}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>📍 Venue</td><td style='font-size:13px;color:#333;font-weight:600;'>{venue}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>🎫 Ticket #</td><td style='font-size:13px;color:#333;font-weight:600;font-family:monospace;'>{ticket.TicketNumber}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>🪑 Seat</td><td style='font-size:13px;color:#333;font-weight:600;'>{seatInfo}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>🎟 Quantity</td><td style='font-size:13px;color:#333;font-weight:600;'>{ticket.Quantity}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>🏷 Type</td><td style='font-size:13px;color:#333;font-weight:600;'>{ticket.Type}</td></tr>
+                              </table>
+                            </div>
+
+                            <div style='background:#f0fdf4;border-left:4px solid #22c55e;border-radius:8px;padding:16px 24px;margin:20px 0;'>
+                              <table cellpadding='0' cellspacing='0' width='100%'>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;width:140px;'>💳 Method</td><td style='font-size:13px;color:#333;font-weight:600;'>{payment.Method}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>💰 Amount Paid</td><td style='font-size:15px;color:#15803d;font-weight:700;'>₹{payment.Amount:N2} {payment.Currency}</td></tr>
+                                <tr><td style='font-size:13px;color:#555;padding:4px 0;'>🔖 Transaction ID</td><td style='font-size:12px;color:#333;font-family:monospace;'>{payment.TransactionId ?? "—"}</td></tr>
+                              </table>
+                            </div>
+
+                            <p style='font-size:13px;color:#999;margin-top:32px;'>
+                              Please keep this email as your booking confirmation. See you at the event!
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style='background:#f9f9f9;padding:16px 40px;text-align:center;'>
+                            <p style='margin:0;font-size:12px;color:#aaa;'>© Event Calendar</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td></tr>
+                  </table>
+                </body>
+                </html>
+                """;
+        }
+
+        public static PaymentResponseDto MapToResponse(Payment p) => new()        {
             Id = p.Id,
             Amount = p.Amount,
             //Quantity=p.Ticket?.Quantity?? 0,

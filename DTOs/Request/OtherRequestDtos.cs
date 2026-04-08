@@ -58,7 +58,10 @@ namespace EventCalendarAPI.DTOs.Request
         [EmailAddress]
         public string? ContactEmail { get; set; }
 
-        public string? ContactPhone { get; set; }
+        [Required]
+        [MinLength(10, ErrorMessage = "Contact phone must be at least 10 digits.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Contact phone must contain only digits.")]
+        public string ContactPhone { get; set; } = string.Empty;
     }
 
     public class UpdateVenueRequestDto
@@ -82,6 +85,8 @@ namespace EventCalendarAPI.DTOs.Request
         [EmailAddress]
         public string? ContactEmail { get; set; }
 
+        [MinLength(10, ErrorMessage = "Contact phone must be at least 10 digits.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Contact phone must contain only digits.")]
         public string? ContactPhone { get; set; }
     }
 
@@ -148,7 +153,10 @@ namespace EventCalendarAPI.DTOs.Request
         [MaxLength(100)]
         public string? LastName { get; set; }
 
-        public string? PhoneNumber { get; set; }
+        [Required]
+        [MinLength(10, ErrorMessage = "Phone number must be at least 10 digits.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits.")]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public string? ProfilePicture { get; set; }
 

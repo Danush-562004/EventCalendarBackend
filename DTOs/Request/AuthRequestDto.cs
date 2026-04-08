@@ -6,6 +6,7 @@ namespace EventCalendarAPI.DTOs.Request
     {
         [Required]
         [MaxLength(100)]
+        [RegularExpression(@"^\S+$", ErrorMessage = "Username must not contain spaces.")]
         public string Username { get; set; } = string.Empty;
 
         [Required]
@@ -25,7 +26,10 @@ namespace EventCalendarAPI.DTOs.Request
         [MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
-        public string? PhoneNumber { get; set; }
+        [Required]
+        [MinLength(10, ErrorMessage = "Phone number must be at least 10 digits.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only digits.")]
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 
     public class LoginRequestDto

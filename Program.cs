@@ -24,6 +24,7 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IReminderRepository, ReminderRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // ─── Services ─────────────────────────────────────────────────
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
@@ -37,10 +38,15 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IReminderService, ReminderService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// ─── Email ────────────────────────────────────────────────────
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 // ─── Background Services ──────────────────────────────────────
 builder.Services.AddHostedService<ReminderCleanupService>();
 builder.Services.AddHostedService<TicketExpiryCleanupService>();
+builder.Services.AddHostedService<ReminderDispatchService>();
 
 // ─── JWT Authentication ───────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]

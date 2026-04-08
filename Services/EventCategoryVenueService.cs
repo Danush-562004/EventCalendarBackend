@@ -1,8 +1,10 @@
+using EventCalendarAPI.Data;
 using EventCalendarAPI.DTOs.Request;
 using EventCalendarAPI.DTOs.Response;
 using EventCalendarAPI.Exceptions;
 using EventCalendarAPI.Interfaces;
 using EventCalendarAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendarAPI.Services
 {
@@ -13,14 +15,22 @@ namespace EventCalendarAPI.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IVenueRepository _venueRepository;
         private readonly IAuditLogService _auditLog;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IEmailService _emailService;
+        private readonly ApplicationDbContext _db;
 
         public EventService(IEventRepository eventRepository, ICategoryRepository categoryRepository,
-            IVenueRepository venueRepository, IAuditLogService auditLog)
+            IVenueRepository venueRepository, IAuditLogService auditLog,
+            INotificationRepository notificationRepository, IEmailService emailService,
+            ApplicationDbContext db)
         {
             _eventRepository = eventRepository;
             _categoryRepository = categoryRepository;
             _venueRepository = venueRepository;
             _auditLog = auditLog;
+            _notificationRepository = notificationRepository;
+            _emailService = emailService;
+            _db = db;
         }
 
         public async Task<EventResponseDto> GetByIdAsync(int id)
@@ -74,9 +84,9 @@ namespace EventCalendarAPI.Services
                 throw new EntityNotFoundException("Category", request.CategoryId);
 
             // Venue capacity check
-            if (request.VenueId.HasValue && request.MaxAttendees > 0)
+            if (request.VenueId > 0 && request.MaxAttendees > 0)
             {
-                var venue = await _venueRepository.GetByIdAsync(request.VenueId.Value);
+                var venue = await _venueRepository.GetByIdAsync(request.VenueId);
                 if (venue != null && request.MaxAttendees > venue.Capacity)
                     throw new ValidationException($"Max attendees ({request.MaxAttendees}) cannot exceed venue capacity ({venue.Capacity}).");
             }
@@ -146,15 +156,127 @@ namespace EventCalendarAPI.Services
 
         public async Task DeleteAsync(int id, int userId)
         {
-            var ev = await _eventRepository.GetByIdAsync(id)
+            var ev = await _db.Events
+                .Include(e => e.Tickets).ThenInclude(t => t.Payments)
+                .Include(e => e.Tickets).ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(e => e.Id == id)
                 ?? throw new EntityNotFoundException("Event", id);
 
-            // Admin owns all events — no ownership check needed
+            var now = DateTime.UtcNow;
+            var isBeforeStart = ev.StartDateTime > now;
+
             ev.IsActive = false;
-            ev.UpdatedAt = DateTime.UtcNow;
-            await _eventRepository.UpdateAsync(ev);
+            ev.UpdatedAt = now;
+
+            // ─── Refund logic: only if event hasn't started yet ───
+            var emailTasks = new List<Task>();
+
+            if (isBeforeStart)
+            {
+                var paidTickets = ev.Tickets
+                    .Where(t => t.Status != TicketStatus.Cancelled &&
+                                t.Payments.Any(p => p.Status == PaymentStatus.Completed))
+                    .ToList();
+
+                foreach (var ticket in paidTickets)
+                {
+                    var refundAmount = 0m;
+
+                    foreach (var payment in ticket.Payments.Where(p => p.Status == PaymentStatus.Completed))
+                    {
+                        payment.Status = PaymentStatus.Refunded;
+                        payment.Notes = $"Auto-refunded: event '{ev.Title}' was cancelled.";
+                        refundAmount += payment.Amount;
+                    }
+
+                    ticket.Status = TicketStatus.Cancelled;
+                    ticket.UpdatedAt = now;
+
+                    _db.Notifications.Add(new Notification
+                    {
+                        UserId = ticket.UserId,
+                        Title = "Event Cancelled — Full Refund Issued",
+                        Message = $"The event \"{ev.Title}\" scheduled for {ev.StartDateTime:MMM d, yyyy} has been cancelled. " +
+                                  $"A full refund of ₹{refundAmount:N2} has been processed to your account.",
+                        Type = NotificationType.Refund
+                    });
+
+                    if (ticket.User != null)
+                    {
+                        var u = ticket.User;
+                        var amount = refundAmount;
+                        var ticketNum = ticket.TicketNumber;
+                        emailTasks.Add(_emailService.SendAsync(
+                            u.Email, u.FirstName,
+                            $"Refund Issued: {ev.Title} has been cancelled",
+                            BuildRefundEmail(u.FirstName, ev.Title, ev.StartDateTime, ticketNum, amount)
+                        ));
+                    }
+                }
+            }
+
+            // Save everything in one shot
+            await _db.SaveChangesAsync();
             await _auditLog.LogAsync("Delete", "Event", id.ToString(), userId, null,
                 oldValues: $"{{\"title\":\"{ev.Title}\"}}");
+
+            // Fire emails after DB is committed (don't await — non-blocking)
+            foreach (var t in emailTasks)
+                _ = t;
+        }
+
+        private static string BuildRefundEmail(string firstName, string eventTitle,
+            DateTime startDateTime, string ticketNumber, decimal refundAmount)
+        {
+            var eventDate = startDateTime.ToString("dddd, MMMM d yyyy") + " UTC";
+            return $"""
+                <!DOCTYPE html>
+                <html>
+                <body style='margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;'>
+                  <table width='100%' cellpadding='0' cellspacing='0'>
+                    <tr><td align='center' style='padding:40px 0;'>
+                      <table width='560' cellpadding='0' cellspacing='0'
+                             style='background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);'>
+                        <tr>
+                          <td style='background:#ef4444;padding:32px 40px;text-align:center;'>
+                            <h1 style='margin:0;color:#ffffff;font-size:24px;'>💸 Refund Issued</h1>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style='padding:36px 40px;'>
+                            <p style='font-size:16px;color:#333;'>Hi <strong>{firstName}</strong>,</p>
+                            <p style='font-size:15px;color:#555;'>
+                              We're sorry to inform you that the following event has been <strong>cancelled</strong>:
+                            </p>
+                            <div style='background:#fff5f5;border-left:4px solid #ef4444;border-radius:8px;padding:20px 24px;margin:20px 0;'>
+                              <h2 style='margin:0 0 8px;color:#ef4444;font-size:20px;'>{eventTitle}</h2>
+                              <p style='margin:0;color:#555;font-size:14px;'>📅 {eventDate}</p>
+                              <p style='margin:4px 0 0;color:#555;font-size:14px;'>🎫 Ticket: {ticketNumber}</p>
+                            </div>
+                            <div style='background:#f0fdf4;border-left:4px solid #22c55e;border-radius:8px;padding:20px 24px;margin:20px 0;'>
+                              <p style='margin:0;font-size:16px;color:#15803d;font-weight:700;'>
+                                ✅ Full Refund: ₹{refundAmount:N2}
+                              </p>
+                              <p style='margin:6px 0 0;font-size:13px;color:#555;'>
+                                Your refund has been processed and will reflect in your account within 5–7 business days.
+                              </p>
+                            </div>
+                            <p style='font-size:13px;color:#999;margin-top:32px;'>
+                              We apologise for the inconvenience. Thank you for your understanding.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style='background:#f9f9f9;padding:16px 40px;text-align:center;'>
+                            <p style='margin:0;font-size:12px;color:#aaa;'>© Event Calendar</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td></tr>
+                  </table>
+                </body>
+                </html>
+                """;
         }
 
         public static EventResponseDto MapToResponse(Event e) => new()

@@ -56,8 +56,9 @@ namespace EventCalendarAPI.Repositories
                 .Include(e => e.User)
                 .Include(e => e.Category)
                 .Include(e => e.Venue)
-                .Include(e => e.Tickets)
-                .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
+                .Include(e => e.Tickets).ThenInclude(t => t.Payments)
+                .Include(e => e.Tickets).ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
         public async Task<IEnumerable<Event>> GetAllWithDetailsAsync() =>
             await _dbSet
@@ -322,3 +323,48 @@ namespace EventCalendarAPI.Repositories
         }
     }
 }
+
+    // ─── Notification Repository ─────────────────────────────────
+    public class NotificationRepository : INotificationRepository
+    {
+        private readonly ApplicationDbContext _context;
+        public NotificationRepository(ApplicationDbContext context) { _context = context; }
+
+        public async Task AddAsync(Notification notification)
+        {
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Notification>> GetByUserIdAsync(int userId) =>
+            await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+        public async Task<int> GetUnreadCountAsync(int userId) =>
+            await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .CountAsync();
+
+        public async Task MarkAllReadAsync(int userId)
+        {
+            var unread = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+            unread.ForEach(n => n.IsRead = true);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task MarkReadAsync(int id, int userId)
+        {
+            var notif = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+            if (notif != null)
+            {
+                notif.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+

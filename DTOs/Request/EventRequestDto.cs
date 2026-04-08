@@ -10,7 +10,8 @@ namespace EventCalendarAPI.DTOs.Request
         public string Title { get; set; } = string.Empty;
 
         [Required]
-        public decimal Price { get; set; } = 0;
+        [Range(1, double.MaxValue, ErrorMessage = "Price must be at least 1.")]
+        public decimal Price { get; set; }
 
         public string? Description { get; set; }
 
@@ -34,12 +35,15 @@ namespace EventCalendarAPI.DTOs.Request
 
         //public string? RecurrenceRule { get; set; }
 
-        public int MaxAttendees { get; set; } = 0;
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Max attendees must be at least 1.")]
+        public int MaxAttendees { get; set; }
 
         [Required]
         public int CategoryId { get; set; }
 
-        public int? VenueId { get; set; }
+        [Required]
+        public int VenueId { get; set; }
     }
 
     public class UpdateEventRequestDto

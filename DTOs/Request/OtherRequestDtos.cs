@@ -12,9 +12,7 @@ namespace EventCalendarAPI.DTOs.Request
 
         public string? Description { get; set; }
 
-        [Required]
-        [RegularExpression(@"^#([A-Fa-f0-9]{6})$", ErrorMessage = "ColorCode must be a valid hex color (e.g. #3498db)")]
-        public string ColorCode { get; set; } = "#3498db";
+        public string? ColorCode { get; set; } = "#3498db";
     }
 
     public class UpdateCategoryRequestDto

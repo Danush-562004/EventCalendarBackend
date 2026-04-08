@@ -99,4 +99,14 @@ namespace EventCalendarAPI.Interfaces
         public List<T> Items { get; set; } = new();
         public int TotalCount { get; set; }
     }
+
+    // ─── Notification ─────────────────────────────────────────────
+    public interface INotificationRepository
+    {
+        Task AddAsync(Notification notification);
+        Task<IEnumerable<Notification>> GetByUserIdAsync(int userId);
+        Task<int> GetUnreadCountAsync(int userId);
+        Task MarkAllReadAsync(int userId);
+        Task MarkReadAsync(int id, int userId);
+    }
 }

@@ -76,12 +76,15 @@ namespace EventCalendarAPI.Services
             int userEventTotal = userEventTickets
                 .Where(t => t.EventId == request.EventId && t.Status != TicketStatus.Cancelled)
                 .Sum(t => t.Quantity);
+            Console.WriteLine($"danush {userEventTotal}");
             if (userEventTotal + request.Quantity > 10)
+
                 throw new ValidationException($"Ticket limit reached. You can book at most 10 tickets per event. You already have {userEventTotal} for this event.");
 
             // Capacity check
             int bookedCount = ev.Tickets?.Where(t => t.Status != TicketStatus.Cancelled)
-                                         .Sum(t => t.Quantity) ?? 0;
+                                         .Sum(t => t.Quantity) ?? 0; 
+            //count returns the matching record count, sum returns sum of ticket quantity in all records
             int available = ev.MaxAttendees - bookedCount;
             if (ev.MaxAttendees > 0 && available < request.Quantity)
                 throw new ValidationException($"Only {available} seats available.");

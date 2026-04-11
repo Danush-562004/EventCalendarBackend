@@ -223,6 +223,9 @@ namespace EventCalendarAPI.Services
             // Fire emails after DB is committed (don't await — non-blocking)
             foreach (var t in emailTasks)
                 _ = t;
+                
+            //  _ tells the compiler that i intentionally did not use await for this task, because the event cancellation can be continued
+
         }
 
         private static string BuildRefundEmail(string firstName, string eventTitle,

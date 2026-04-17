@@ -15,7 +15,7 @@ namespace EventCalendarAPI.Controllers
             _authService = authService;
         }
 
-        /// <summary>Register a new user account.</summary>
+        // Register a new user account.
         [HttpPost("register")]
         [ProducesResponseType(typeof(ApiResponseDto<AuthResponseDto>), 201)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 400)]
@@ -25,7 +25,7 @@ namespace EventCalendarAPI.Controllers
             return CreatedAtAction(nameof(Register), ApiResponseDto<AuthResponseDto>.Ok(result, "Registration successful."));
         }
 
-        /// <summary>Login with username/email and password.</summary>
+        // Login with username/email and password.
         [HttpPost("login")]
         [ProducesResponseType(typeof(ApiResponseDto<AuthResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 401)]

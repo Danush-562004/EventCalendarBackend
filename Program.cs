@@ -11,11 +11,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── Database ─────────────────────────────────────────────────
+// Database 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// db_context is scoped by default, ASP.net core register it as scoped 
 
-// ─── Repositories ─────────────────────────────────────────────
+// Repositories 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -26,7 +27,9 @@ builder.Services.AddScoped<IReminderRepository, ReminderRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
-// ─── Services ─────────────────────────────────────────────────
+//repository is scoped because it depends on db_context, avoid lifecycle break
+
+// Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -40,15 +43,18 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// ─── Email ────────────────────────────────────────────────────
-builder.Services.AddSingleton<IEmailService, EmailService>();
+//services is scoped because it depends on repository, avoid lifecycle break
 
-// ─── Background Services ──────────────────────────────────────
+// Email 
+builder.Services.AddSingleton<IEmailService, EmailService>(); // it is stateless
+//  db_context is not directly injected to singleton , multiple requests can corrupt the resource.
+
+// Background Services 
 builder.Services.AddHostedService<ReminderCleanupService>();
 builder.Services.AddHostedService<TicketExpiryCleanupService>();
 builder.Services.AddHostedService<ReminderDispatchService>();
 
-// ─── JWT Authentication ───────────────────────────────────────
+// JWT Authentication 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT Key is not configured.");
 
@@ -70,7 +76,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ─── CORS ─────────────────────────────────────────────────────
+// CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
@@ -79,7 +85,9 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ─── Controllers ──────────────────────────────────────────────
+//it allows the frontend with this origin to connect with backend
+
+// Controllers 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -87,7 +95,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// ─── Swagger / OpenAPI ────────────────────────────────────────
+// Swagger / OpenAPI 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -122,7 +130,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// ─── Middleware Pipeline ──────────────────────────────────────
+// Middleware Pipeline 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())

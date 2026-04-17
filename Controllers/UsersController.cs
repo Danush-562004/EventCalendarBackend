@@ -16,7 +16,7 @@ namespace EventCalendarAPI.Controllers
             _userService = userService;
         }
 
-        /// <summary>Get all users with pagination (Admin only).</summary>
+        // Get all users with pagination (Admin only).
         [HttpGet]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<UserResponseDto>>), 200)]
@@ -26,7 +26,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<PagedResponseDto<UserResponseDto>>.Ok(users));
         }
 
-        /// <summary>Get a user by ID.</summary>
+        // Get a user by ID.
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<UserResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 404)]
@@ -36,7 +36,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<UserResponseDto>.Ok(user));
         }
 
-        /// <summary>Get the currently authenticated user's profile.</summary>
+        // Get the currently authenticated user's profile.
         [HttpGet("me")]
         [ProducesResponseType(typeof(ApiResponseDto<UserResponseDto>), 200)]
         public async Task<IActionResult> GetCurrentUser()
@@ -45,7 +45,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<UserResponseDto>.Ok(user));
         }
 
-        /// <summary>Update a user profile.</summary>
+        /// Update a user profile.
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<UserResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]
@@ -55,7 +55,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<UserResponseDto>.Ok(user, "Profile updated successfully."));
         }
 
-        /// <summary>Change the authenticated user's password.</summary>
+        // Change the authenticated user's password.
         [HttpPut("me/change-password")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 400)]
@@ -65,7 +65,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<object>.Ok(null!, "Password changed successfully."));
         }
 
-        /// <summary>Deactivate a user account.</summary>
+        // Deactivate a user account.
         [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]

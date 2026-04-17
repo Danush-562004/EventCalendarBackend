@@ -15,7 +15,7 @@ namespace EventCalendarAPI.Controllers
             _notificationService = notificationService;
         }
 
-        /// <summary>Get all notifications for the current user.</summary>
+        // Get all notifications for the current user.
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseDto<IEnumerable<NotificationResponseDto>>), 200)]
         public async Task<IActionResult> GetMine()
@@ -24,7 +24,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<IEnumerable<NotificationResponseDto>>.Ok(result));
         }
 
-        /// <summary>Get unread notification count.</summary>
+        // Get unread notification count.
         [HttpGet("unread-count")]
         [ProducesResponseType(typeof(ApiResponseDto<int>), 200)]
         public async Task<IActionResult> GetUnreadCount()
@@ -33,7 +33,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<int>.Ok(count));
         }
 
-        /// <summary>Mark a single notification as read.</summary>
+        // Mark a single notification as read.
         [HttpPut("{id:int}/read")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         public async Task<IActionResult> MarkRead([FromRoute] int id)
@@ -42,7 +42,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<object>.Ok(null!, "Notification marked as read."));
         }
 
-        /// <summary>Mark all notifications as read.</summary>
+        // Mark all notifications as read.
         [HttpPut("read-all")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         public async Task<IActionResult> MarkAllRead()

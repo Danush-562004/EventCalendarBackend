@@ -16,7 +16,7 @@ namespace EventCalendarAPI.Controllers
             _reminderService = reminderService;
         }
 
-        /// <summary>Get all reminders for the current user with pagination.</summary>
+        // Get all reminders for the current user with pagination.
         [HttpGet]
         [HttpGet("my")]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<ReminderResponseDto>>), 200)]
@@ -26,7 +26,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<PagedResponseDto<ReminderResponseDto>>.Ok(result));
         }
 
-        /// <summary>Get a reminder by ID.</summary>
+        // Get a reminder by ID.
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<ReminderResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 404)]
@@ -36,7 +36,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<ReminderResponseDto>.Ok(reminder));
         }
 
-        /// <summary>Get reminders for a specific event.</summary>
+        // Get reminders for a specific event.
         [HttpGet("by-event/{eventId:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<IEnumerable<ReminderResponseDto>>), 200)]
         public async Task<IActionResult> GetByEvent([FromRoute] int eventId)
@@ -45,7 +45,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<IEnumerable<ReminderResponseDto>>.Ok(reminders));
         }
 
-        /// <summary>Create a new reminder.</summary>
+        // Create a new reminder.
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponseDto<ReminderResponseDto>), 201)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 400)]
@@ -56,7 +56,7 @@ namespace EventCalendarAPI.Controllers
                 ApiResponseDto<ReminderResponseDto>.Ok(reminder, "Reminder created successfully."));
         }
 
-        /// <summary>Update a reminder.</summary>
+        // Update a reminder.
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<ReminderResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]
@@ -67,7 +67,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<ReminderResponseDto>.Ok(reminder, "Reminder updated successfully."));
         }
 
-        /// <summary>Delete (soft-delete) a reminder.</summary>
+        // Delete (soft-delete) a reminder.
         [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 403)]

@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendarAPI.Services
 {
-    /// <summary>
+    
     /// Background service that soft-deletes reminders whose associated event has ended.
     /// Runs every 30 minutes.
-    /// </summary>
+   
     public class ReminderCleanupService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;

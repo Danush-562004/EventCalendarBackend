@@ -90,7 +90,7 @@ namespace EventCalendarAPI.Data
                 entity.HasOne(t => t.User)
                     .WithMany(u => u.Tickets)
                     .HasForeignKey(t => t.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict); //avoid relational integrity break
             });
 
             // Payment

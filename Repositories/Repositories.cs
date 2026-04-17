@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendarAPI.Repositories
 {
-    // ─── User Repository ─────────────────────────────────────────
+    // User Repository 
     public class UserRepository : Repository<User>, IUserRepository
     {
         public UserRepository(ApplicationDbContext context) : base(context) { }
@@ -46,7 +46,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Event Repository ────────────────────────────────────────
+    // Event Repository 
     public class EventRepository : Repository<Event>, IEventRepository
     {
         public EventRepository(ApplicationDbContext context) : base(context) { }
@@ -147,7 +147,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Category Repository ─────────────────────────────────────
+    // Category Repository 
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
         public CategoryRepository(ApplicationDbContext context) : base(context) { }
@@ -164,7 +164,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Venue Repository ────────────────────────────────────────
+    // Venue Repository 
     public class VenueRepository : Repository<Venue>, IVenueRepository
     {
         public VenueRepository(ApplicationDbContext context) : base(context) { }
@@ -186,7 +186,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Ticket Repository ───────────────────────────────────────
+    // Ticket Repository 
     public class TicketRepository : Repository<Ticket>, ITicketRepository
     {
         public TicketRepository(ApplicationDbContext context) : base(context) { }
@@ -233,7 +233,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Payment Repository ──────────────────────────────────────
+    // Payment Repository 
     public class PaymentRepository : Repository<Payment>, IPaymentRepository
     {
         public PaymentRepository(ApplicationDbContext context) : base(context) { }
@@ -256,7 +256,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── Reminder Repository ─────────────────────────────────────
+    // Reminder Repository 
     public class ReminderRepository : Repository<Reminder>, IReminderRepository
     {
         public ReminderRepository(ApplicationDbContext context) : base(context) { }
@@ -293,7 +293,7 @@ namespace EventCalendarAPI.Repositories
         }
     }
 
-    // ─── AuditLog Repository ─────────────────────────────────────
+    //  AuditLog Repository 
     public class AuditLogRepository : IAuditLogRepository
     {
         private readonly ApplicationDbContext _context;
@@ -324,7 +324,7 @@ namespace EventCalendarAPI.Repositories
     }
 }
 
-    // ─── Notification Repository ─────────────────────────────────
+    // Notification Repository 
     public class NotificationRepository : INotificationRepository
     {
         private readonly ApplicationDbContext _context;

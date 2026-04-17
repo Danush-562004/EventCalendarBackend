@@ -22,7 +22,7 @@ namespace EventCalendarAPI.Services
             _auditLog = auditLog;
         }
 
-        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
+        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request) 
         {
             if (await _userRepository.UsernameExistsAsync(request.Username))
                 throw new DuplicateEntityException($"Username '{request.Username}' is already taken.");
@@ -47,7 +47,7 @@ namespace EventCalendarAPI.Services
             var created = await _userRepository.AddAsync(user);
             await _auditLog.LogAsync("Register", "User", created.Id.ToString(),
                 created.Id, created.Username, newValues: $"{{\"username\":\"{created.Username}\",\"email\":\"{created.Email}\"}}");
-            return BuildAuthResponse(created);
+            return BuildAuthResponse(created); // token generated when registering
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)

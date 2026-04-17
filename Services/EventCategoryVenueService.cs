@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendarAPI.Services
 {
-    // ─── Event Service ───────────────────────────────────────────
+    //  Event Service 
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
@@ -168,7 +168,7 @@ namespace EventCalendarAPI.Services
             ev.IsActive = false;
             ev.UpdatedAt = now;
 
-            // ─── Refund logic: only if event hasn't started yet ───
+            //  Refund logic: only if event hasn't started yet 
             var emailTasks = new List<Task>();
 
             if (isBeforeStart)
@@ -329,7 +329,7 @@ namespace EventCalendarAPI.Services
         };
     }
 
-    // ─── Category Service ────────────────────────────────────────
+    //  Category Service 
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -415,7 +415,7 @@ namespace EventCalendarAPI.Services
         };
     }
 
-    // ─── Venue Service ───────────────────────────────────────────
+    // Venue Service 
     public class VenueService : IVenueService
     {
         private readonly IVenueRepository _venueRepository;

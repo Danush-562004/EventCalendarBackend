@@ -5,7 +5,7 @@ using EventCalendarAPI.Interfaces;
 using EventCalendarAPI.Models;
 namespace EventCalendarAPI.Services
 {
-    // ─── Ticket Service ──────────────────────────────────────────
+    // Ticket Service 
     public class TicketService : ITicketService
     {
         private readonly ITicketRepository _ticketRepository;
@@ -76,8 +76,8 @@ namespace EventCalendarAPI.Services
             int userEventTotal = userEventTickets
                 .Where(t => t.EventId == request.EventId && t.Status != TicketStatus.Cancelled)
                 .Sum(t => t.Quantity);
-            Console.WriteLine($"danush {userEventTotal}");
-            if (userEventTotal + request.Quantity > 10)
+            
+            if (userEventTotal + request.Quantity > 10) // 0 + 10 >10 = false -- allows
 
                 throw new ValidationException($"Ticket limit reached. You can book at most 10 tickets per event. You already have {userEventTotal} for this event.");
 
@@ -95,7 +95,7 @@ namespace EventCalendarAPI.Services
                 EventId = request.EventId,
                 UserId = userId,
                 Type = request.Type,
-                Price = request.Type == TicketType.Free ? 0 : ev.Price,  // ✅ use event price
+                Price = request.Type == TicketType.Free ? 0 : ev.Price,  //  use event price
                 Quantity = request.Quantity,
                 SeatNumber = request.SeatNumber,
                 Status = TicketStatus.Reserved
@@ -191,7 +191,7 @@ namespace EventCalendarAPI.Services
         };
     }
 
-    // ─── Payment Service ─────────────────────────────────────────
+    //  Payment Service 
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;

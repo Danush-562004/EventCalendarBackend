@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendarAPI.Services
 {
-    /// <summary>
+    
     /// Background service that runs every minute, finds due reminders,
     /// sends an email to the user, and marks the reminder as sent.
-    /// </summary>
+    
     public class ReminderDispatchService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;

@@ -16,7 +16,7 @@ namespace EventCalendarAPI.Controllers
             _eventService = eventService;
         }
 
-        /// <summary>Get all events with pagination.</summary>
+        // Get all events with pagination.
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<EventResponseDto>>), 200)]
@@ -26,7 +26,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<PagedResponseDto<EventResponseDto>>.Ok(result));
         }
 
-        /// <summary>Search and filter events with pagination.</summary>
+        // Search and filter events with pagination.
         [HttpGet("search")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponseDto<PagedResponseDto<EventResponseDto>>), 200)]
@@ -36,7 +36,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<PagedResponseDto<EventResponseDto>>.Ok(result));
         }
 
-        /// <summary>Get an event by ID.</summary>
+        // Get an event by ID.
         [HttpGet("{id:int}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponseDto<EventResponseDto>), 200)]
@@ -47,7 +47,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<EventResponseDto>.Ok(ev));
         }
 
-        /// <summary>Get all events created by the current user.</summary>
+        // Get all events created by the current user.
         [HttpGet("my-events")]
         [ProducesResponseType(typeof(ApiResponseDto<IEnumerable<EventResponseDto>>), 200)]
         public async Task<IActionResult> GetMyEvents()
@@ -56,7 +56,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<IEnumerable<EventResponseDto>>.Ok(events));
         }
 
-        /// <summary>Create a new event.</summary>
+        // Create a new event.
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponseDto<EventResponseDto>), 201)]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 400)]
@@ -68,7 +68,7 @@ namespace EventCalendarAPI.Controllers
                 ApiResponseDto<EventResponseDto>.Ok(ev, "Event created successfully."));
         }
 
-        /// <summary>Update an existing event.</summary>
+        // Update an existing event.
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<EventResponseDto>), 200)]
@@ -80,7 +80,7 @@ namespace EventCalendarAPI.Controllers
             return Ok(ApiResponseDto<EventResponseDto>.Ok(ev, "Event updated successfully."));
         }
 
-        /// <summary>Delete (soft-delete) an event.</summary>
+        // Delete (soft-delete) an event.
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponseDto<object>), 200)]
